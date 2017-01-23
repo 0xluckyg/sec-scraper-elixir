@@ -13,10 +13,12 @@ defmodule Scraper.Schema do
 end
 
 defmodule Scraper.Issuer do
-  use Scraper.Schema do
+  use Scraper.Schema
+
+  schema "issuer" do
     field :cik, :integer, primary_key: true
     field :name, :string
-    has_many :filings, Scraper.Filing, foreign_key: :cik
+    has_many :filings, Scraper.Filing
   end
 end
 
@@ -26,7 +28,7 @@ defmodule Scraper.Reporting do
   schema "reporting" do
     field :cik, :integer, primary_key: true
     field :name, :string
-    has_many :filings, Scraper.Filing, foreign_key: :cik
+    has_many :filings, Scraper.Filing
   end
 end
 
@@ -34,11 +36,10 @@ defmodule Scraper.Filing do
   use Scraper.Schema
 
   schema "filing" do
-    field :id, :binary_id, primary_key: true
+    field :accession, :binary_id
     field :form, :string
     timestamps
-
-    belongs_to :issuer, Scraper.Issuer, foreign_key: :cik
-    belongs_to :reporting, Scraper.Reporting, foreign_key: :cik
+    belongs_to :issuer, Scraper.Issuer, references: :cik
+    belongs_to :reporting, Scraper.Reporting, references: :cik
   end
 end

@@ -32,7 +32,7 @@ defmodule Scraper.Mixfile do
       { :httpoison, "~> 0.11.0" },
       { :quinn, "~> 1.0.0" },
       { :postgrex, ">=0.0.0" },
-      { :ecto, "~> 1.0" }
+      { :ecto, "~> 2.1.3" }
     ]
   end
 end
