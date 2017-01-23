@@ -3,6 +3,10 @@ defmodule SecScraper.Mixfile do
 
   def project do
     [app: :sec_scraper,
+     build_path: "../../_build",
+     config_path: "../../config/config.exs",
+     deps_path: "../../deps",
+     lockfile: "../../mix.lock",
      version: "0.1.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
@@ -14,7 +18,8 @@ defmodule SecScraper.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :quinn, :postgrex, :ecto]]
+    [applications: [:logger, :httpoison, :quinn, :postgrex, :ecto],
+     mod: {SecScraper, []}]
   end
 
   # Dependencies can be Hex packages:
