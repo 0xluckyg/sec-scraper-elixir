@@ -1,0 +1,2 @@
+defmodule SecScraper do
+end
