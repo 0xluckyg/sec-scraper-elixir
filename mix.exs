@@ -15,7 +15,7 @@ defmodule Scraper.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [mod: {Scraper, []},
-     applications: [:logger, :httpoison, :quinn]]
+     applications: [:logger, :httpoison, :quinn, :postgrex, :ecto]]
   end
 
   # Dependencies can be Hex packages:
@@ -30,7 +30,9 @@ defmodule Scraper.Mixfile do
   defp deps do
     [
       { :httpoison, "~> 0.11.0" },
-      { :quinn, "~> 1.0.0"}
+      { :quinn, "~> 1.0.0" },
+      { :postgrex, ">=0.0.0" },
+      { :ecto, "~> 1.0" }
     ]
   end
 end

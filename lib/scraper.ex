@@ -2,6 +2,7 @@ require IEx
 
 defmodule Scraper do
   @url "https://www.sec.gov/cgi-bin/browse-edgar?company=&CIK=&type=&owner=include&count=100&action=getcurrent&output=atom"
+
   def start(_type, _args) do
     IO.puts "starting"
     Task.start(fn -> scrape end)
@@ -74,5 +75,3 @@ defmodule Scraper do
     {key, body}
   end
 end
-
-# ~r/(?<form>\S+) - (?<subject>[\w .-]+) \((?<id>[0-9]+)\) \((?<role>\w+\>)/
