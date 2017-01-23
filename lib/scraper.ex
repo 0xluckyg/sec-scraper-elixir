@@ -11,15 +11,19 @@ defmodule Scraper do
   def scrape do
     {:ok, response} =  HTTPoison.get @url
     response_body = Quinn.parse(response.body)
-    filings_hash = %{metadata: %{}}
-    entries = Quinn.find(response_body, :entry)
-      |> Enum.map(fn(raw_entry) -> entry_struct(raw_entry) end)
-      |> Enum.reduce(filings_hash, fn(entry_struct, hash) ->
-           {key, entry} = entry_struct
-           existing_entry = hash[key] || %{}
-           merged_entries = Map.merge(existing_entry, entry)
-           Map.put(hash, key, merged_entries)
-         end)
+    filings = %{metadata: %{}}
+    Quinn.find(response_body, :entry)
+    |> Enum.map(fn(raw_entry) -> entry_struct(raw_entry) end)
+    |> Enum.reduce(filings, fn(entry_struct, filings) ->
+      construct_entry(entry_struct, filings)
+    end)
+  end
+
+  defp construct_entry(entry_struct, filings) do
+    {filing_id, new_entry} = entry_struct
+    existing_entry = filings[filing_id] || %{}
+    merged_entries = Map.merge(existing_entry, new_entry)
+    Map.put(filings, filing_id, merged_entries)
   end
 
   defp entry_struct(entry) do
@@ -70,7 +74,6 @@ defmodule Scraper do
     }
     {key, body}
   end
-
 end
 
 # ~r/(?<form>\S+) - (?<subject>[\w .-]+) \((?<id>[0-9]+)\) \((?<role>\w+\>)/
