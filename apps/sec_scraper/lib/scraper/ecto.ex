@@ -7,7 +7,7 @@ defmodule SecScraper.Schema do
   defmacro __using__(_) do
     quote do
       use Ecto.Schema
-      @timestamps_opts [type: :utc_datetime, usec: true]
+      @primary_key {:cik, :integer, autogenerate: false}
     end
   end
 end
@@ -16,8 +16,7 @@ defmodule SecScraper.Issuer do
   use SecScraper.Schema
 
   schema "issuer" do
-    field :cik, :integer, primary_key: true
-    field :name, :string
+    field :name
     has_many :filings, SecScraper.Filing
   end
 end
@@ -26,19 +25,18 @@ defmodule SecScraper.Reporting do
   use SecScraper.Schema
 
   schema "reporting" do
-    field :cik, :integer, primary_key: true
-    field :name, :string
+    field :name
     has_many :filings, SecScraper.Filing
   end
 end
 
 defmodule SecScraper.Filing do
-  use SecScraper.Schema
+  use Ecto.Schema
 
   schema "filing" do
-    field :accession, :binary_id
-    field :form, :string
-    timestamps
+    field :accession
+    field :form
+    timestamps type: :utc_datetime
     belongs_to :issuer, SecScraper.Issuer, references: :cik
     belongs_to :reporting, SecScraper.Reporting, references: :cik
   end

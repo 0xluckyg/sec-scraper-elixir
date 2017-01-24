@@ -13,10 +13,10 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
     end
 
     create table(:filing) do
-      add :accession, :binary, null: false, unique: true
+      add :accession, :string, null: false, unique: true
       add :form, :string, null: false
-      add :issuer_id, :integer, null: false
-      add :reporting_id, :integer, null: false
+      add :issuer_cik, :integer, null: false
+      add :reporting_cik, :integer, null: false
       timestamps type: :utc_datetime
     end
 
@@ -25,8 +25,8 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
     create index(:reporting, :cik)
     create index(:reporting, :name)
     create index(:filing, :accession)
-    create index(:filing, :issuer_id)
-    create index(:filing, :reporting_id)
+    create index(:filing, :issuer_cik)
+    create index(:filing, :reporting_cik)
   end
 
 end
