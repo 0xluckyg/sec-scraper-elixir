@@ -1,12 +1,6 @@
-require IEx
+defmodule SecScraper.Parser do
 
-defmodule Scraper do
   @url "https://www.sec.gov/cgi-bin/browse-edgar?company=&CIK=&type=&owner=include&count=100&action=getcurrent&output=atom"
-  #
-  def start(_type, _args) do
-    IO.puts "starting"
-    Task.start(fn -> scrape end)
-  end
 
   def scrape do
     {:ok, response} =  HTTPoison.get @url
@@ -19,14 +13,10 @@ defmodule Scraper do
     end)
   end
 
-  defp construct_entry(entry_struct, filings) do
-    {filing_id, new_entry} = entry_struct
-    existing_entry = filings[filing_id] || %{}
-    merged_entries = Map.merge(existing_entry, new_entry)
-    Map.put(filings, filing_id, merged_entries)
-  end
+################################ PRIVATE METHODS ###############################
 
   defp entry_struct(entry) do
+    IO.inspect entry
     file_id = get_file_id(entry)
     {key, body} = get_title(entry)
     entry = %{
@@ -36,6 +26,16 @@ defmodule Scraper do
     }
     {file_id, entry}
   end
+
+  defp construct_entry(entry_struct, filings) do
+    {filing_id, new_entry} = entry_struct
+    existing_entry = filings[filing_id] || %{}
+    merged_entries = Map.merge(existing_entry, new_entry)
+    Map.put(filings, filing_id, merged_entries)
+  end
+
+################################### HELPERS ####################################
+
 
   defp get_title(entry) do
     [%{value: [title]}] = Quinn.find(entry, :title)
@@ -64,9 +64,10 @@ defmodule Scraper do
   end
 
   defp parse_title(title_string) do
-    regex = ~r/(?<form>\S+) - (?<subject>[\w .,-\/]+) \((?<id>[0-9]+)\) \((?<role>\w+)\)/
+    regex = ~r/(?<form>.+) - (?<subject>[\w .,&-\/]+) \((?<id>[0-9]+)\) \((?<role>.+)\)/
     title = Regex.named_captures(regex, title_string)
-    key = String.to_atom(String.downcase(title["role"]))
+    role_string = String.downcase(String.replace(title["role"], " ", "_"))
+    key = String.to_atom(role_string)
     body = %{
       form: title["form"],
       id: title["id"],
@@ -75,5 +76,3 @@ defmodule Scraper do
     {key, body}
   end
 end
-
-# ~r/(?<form>\S+) - (?<subject>[\w .-]+) \((?<id>[0-9]+)\) \((?<role>\w+\>)/

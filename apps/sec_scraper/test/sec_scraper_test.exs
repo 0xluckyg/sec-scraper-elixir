@@ -1,6 +1,6 @@
-defmodule ScraperTest do
+defmodule SecScraperTest do
   use ExUnit.Case
-  doctest Scraper
+  doctest SecScraper
 
   test "the truth" do
     assert 1 + 1 == 2
