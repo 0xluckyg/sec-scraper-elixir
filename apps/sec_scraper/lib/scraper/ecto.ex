@@ -4,13 +4,14 @@ defmodule SecScraper.Repo do
 end
 
 defmodule Insider.Entity do
+  alias Insider.Filing
   use Ecto.Schema
   @primary_key {:cik, :integer, autogenerate: false}
 
   schema "entity" do
     field :type
     field :name
-    has_many :filings, SecScraper.Filing
+    has_many :filings, Filing
   end
 end
 

@@ -1,4 +1,4 @@
-defmodule SecScraper.SecAtomFeed do
+defmodule SecScraper.AtomFeed do
 
   @base_url "https://www.sec.gov/cgi-bin/browse-edgar"
   @default_opts %{ owner: :include, count: 10, action: :getcurrent, output: :atom }
