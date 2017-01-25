@@ -17,10 +17,10 @@ defmodule SecScraper.Form4 do
 
   def process_entry(entry) do
     {accession, body} = entry
-    issuer = struct(Entity, process_entity(body.issuer, :issuer))
-    reporting = struct(Entity, process_entity(body.reporting, :reporting))
-    filing = %Filing{accession: accession, form: body.form,
-                     issuer_cik: issuer.cik, reporting_cik: reporting.cik}
+    issuer = process_entity(body.issuer, :issuer)
+    reporting = process_entity(body.reporting, :reporting)
+    filing = %{accession:  accession, form: body.form,
+               issuer_cik: issuer.cik, reporting_cik: reporting.cik}
     {filing, [issuer] ++ [reporting]}
   end
 
