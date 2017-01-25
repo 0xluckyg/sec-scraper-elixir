@@ -1,9 +1,11 @@
-defmodule SecScraper.Parser do
+defmodule SecScraper.SecAtomFeed do
 
-  @url "https://www.sec.gov/cgi-bin/browse-edgar?company=&CIK=&type=&owner=include&count=100&action=getcurrent&output=atom"
+  @base_url "https://www.sec.gov/cgi-bin/browse-edgar"
+  @default_opts %{ owner: :include, count: 10, action: :getcurrent, output: :atom }
 
-  def scrape do
-    {:ok, response} =  HTTPoison.get @url
+  def scrape(opts \\ %{}) do
+    url = @base_url <> build_query_string(opts)
+    {:ok, response} =  HTTPoison.get url
     response_body = Quinn.parse(response.body)
     filings = %{metadata: %{}}
     Quinn.find(response_body, :entry)
@@ -15,8 +17,18 @@ defmodule SecScraper.Parser do
 
 ################################ PRIVATE METHODS ###############################
 
+  # ?action=getcurrent&count=10&output=atom&owner=include by default
+  def build_query_string(opts \\ %{}) do
+    opts = Map.merge(@default_opts, opts)
+    Enum.map(opts, fn(key_pair) ->
+      {key, value} = key_pair
+      "#{key}=#{value}"
+    end)
+    |> Enum.join("&")
+    |> (fn(query_string) -> "?" <> query_string end).()
+  end
+
   defp entry_struct(entry) do
-    IO.inspect entry
     file_id = get_file_id(entry)
     {key, body} = get_title(entry)
     entry = %{

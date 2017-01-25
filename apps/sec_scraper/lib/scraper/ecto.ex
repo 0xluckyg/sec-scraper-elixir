@@ -3,41 +3,26 @@ defmodule SecScraper.Repo do
   otp_app: :sec_scraper
 end
 
-defmodule SecScraper.Schema do
-  defmacro __using__(_) do
-    quote do
-      use Ecto.Schema
-      @primary_key {:cik, :integer, autogenerate: false}
-    end
-  end
-end
+defmodule Insider.Entity do
+  use Ecto.Schema
+  @primary_key {:cik, :integer, autogenerate: false}
 
-defmodule SecScraper.Issuer do
-  use SecScraper.Schema
-
-  schema "issuer" do
+  schema "entity" do
+    field :type
     field :name
     has_many :filings, SecScraper.Filing
   end
 end
 
-defmodule SecScraper.Reporting do
-  use SecScraper.Schema
-
-  schema "reporting" do
-    field :name
-    has_many :filings, SecScraper.Filing
-  end
-end
-
-defmodule SecScraper.Filing do
+defmodule Insider.Filing do
+  alias Insider.Entity
   use Ecto.Schema
 
   schema "filing" do
     field :accession
     field :form
     timestamps type: :utc_datetime
-    belongs_to :issuer, SecScraper.Issuer, references: :cik
-    belongs_to :reporting, SecScraper.Reporting, references: :cik
+    belongs_to :issuer, Entity, references: :cik
+    belongs_to :reporting, Entity, references: :cik
   end
 end
