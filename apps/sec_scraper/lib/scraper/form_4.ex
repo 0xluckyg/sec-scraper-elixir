@@ -7,16 +7,13 @@ defmodule SecScraper.Form4 do
   def process_feed do
     Feed.scrape
     |> process_content()
-    |> persist_to_db()
+    |> save_filings()
   end
 
-  defp persist_to_db(db_objects) do
+  defp save_filings(db_objects) do
     {filing_list, entity_list} = db_objects
-    require IEx
-    IEx.pry
-    filings = Repo.insert_all(Filing, filing_list, returning: true)
+    filings  = Repo.insert_all(Filing, filing_list, returning: true)
     entities = Repo.insert_all(Entity, entity_list, returning: true, on_conflict: :nothing)
-    IO.inspect {filings, entities}
   end
 
   defp process_content(feed) do
