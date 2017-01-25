@@ -6,7 +6,8 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
       add :cik, :integer, null: false, unique: true, primary_key: true
       add :role, :string
       add :name, :string, null: false
-      timestamps type: :utc_datetime
+      add :inserted_at, :utc_datetime, default: fragment("now()")
+      add :updated_at, :utc_datetime, default: fragment("now()")
     end
 
     create table(:filing) do
@@ -14,7 +15,8 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
       add :form, :string, null: false
       add :issuer_cik, :integer
       add :reporting_cik, :integer
-      timestamps type: :utc_datetime
+      add :inserted_at, :utc_datetime, default: fragment("now()")
+      add :updated_at, :utc_datetime, default: fragment("now()")
     end
 
     create index(:entity, :cik)

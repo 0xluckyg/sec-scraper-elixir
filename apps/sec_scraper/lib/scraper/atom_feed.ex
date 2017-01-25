@@ -7,7 +7,7 @@ defmodule SecScraper.AtomFeed do
     url = @base_url <> build_query_string(opts)
     {:ok, response} =  HTTPoison.get url
     response_body = Quinn.parse(response.body)
-    filings = %{metadata: %{}}
+    filings = %{metadata: %{timestamp: DateTime.utc_now()}}
     Quinn.find(response_body, :entry)
     |> Enum.map(fn(raw_entry) -> entry_struct(raw_entry) end)
     |> Enum.reduce(filings, fn(entry_struct, filings) ->
@@ -71,8 +71,7 @@ defmodule SecScraper.AtomFeed do
 
   defp get_accession_number(accession_string) do
     regex = ~r/[a-z].+accession-number=(?<accession>[0-9-]+)/
-    accession = Regex.named_captures(regex, accession_string)["accession"]
-    String.to_atom(accession)
+    Regex.named_captures(regex, accession_string)["accession"]
   end
 
   defp parse_title(title_string) do
