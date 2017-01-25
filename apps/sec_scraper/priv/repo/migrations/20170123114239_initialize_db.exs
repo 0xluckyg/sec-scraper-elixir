@@ -2,28 +2,25 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
   use Ecto.Migration
 
   def change do
-    create table(:issuer) do
+    create table(:entity) do
       add :cik, :integer, null: false, unique: true, primary_key: true
+      add :role, :string
       add :name, :string, null: false
-    end
-
-    create table(:reporting) do
-      add :cik, :integer, null: false, unique: true, primary_key: true
-      add :name, :string, null: false
+      add :inserted_at, :utc_datetime, default: fragment("now()")
+      add :updated_at, :utc_datetime, default: fragment("now()")
     end
 
     create table(:filing) do
       add :accession, :string, null: false, unique: true
       add :form, :string, null: false
-      add :issuer_cik, :integer, null: false
-      add :reporting_cik, :integer, null: false
-      timestamps type: :utc_datetime
+      add :issuer_cik, :integer
+      add :reporting_cik, :integer
+      add :inserted_at, :utc_datetime, default: fragment("now()")
+      add :updated_at, :utc_datetime, default: fragment("now()")
     end
 
-    create index(:issuer, :cik)
-    create index(:issuer, :name)
-    create index(:reporting, :cik)
-    create index(:reporting, :name)
+    create index(:entity, :cik)
+    create index(:entity, :name)
     create index(:filing, :accession)
     create index(:filing, :issuer_cik)
     create index(:filing, :reporting_cik)
