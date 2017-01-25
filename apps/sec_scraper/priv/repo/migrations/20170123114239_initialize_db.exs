@@ -12,8 +12,8 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
     create table(:filing) do
       add :accession, :string, null: false, unique: true
       add :form, :string, null: false
-      add :issuer_cik, :integer, null: false
-      add :reporting_cik, :integer, null: false
+      add :issuer_cik, :integer
+      add :reporting_cik, :integer
       timestamps type: :utc_datetime
     end
 

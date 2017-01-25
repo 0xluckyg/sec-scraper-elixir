@@ -76,13 +76,13 @@ defmodule SecScraper.AtomFeed do
   end
 
   defp parse_title(title_string) do
-    regex = ~r/(?<form>.+) - (?<subject>[\w .,&-\/]+) \((?<id>[0-9]+)\) \((?<role>.+)\)/
+    regex = ~r/(?<form>.+) - (?<subject>[\w .,&-\/]+) \((?<cik>[0-9]+)\) \((?<role>.+)\)/
     title = Regex.named_captures(regex, title_string)
     role_string = String.downcase(String.replace(title["role"], " ", "_"))
     key = String.to_atom(role_string)
     body = %{
       form: title["form"],
-      id: title["id"],
+      cik: title["cik"],
       subject: title["subject"]
     }
     {key, body}
