@@ -1,11 +1,13 @@
-defmodule SecScraper.Parser do
+defmodule SecScraper.AtomFeed do
 
-  @url "https://www.sec.gov/cgi-bin/browse-edgar?company=&CIK=&type=&owner=include&count=100&action=getcurrent&output=atom"
+  @base_url "https://www.sec.gov/cgi-bin/browse-edgar"
+  @default_opts %{ owner: :include, count: 10, action: :getcurrent, output: :atom }
 
-  def scrape do
-    {:ok, response} =  HTTPoison.get @url
+  def scrape(opts \\ %{}) do
+    url = @base_url <> build_query_string(opts)
+    {:ok, response} =  HTTPoison.get url
     response_body = Quinn.parse(response.body)
-    filings = %{metadata: %{}}
+    filings = %{metadata: %{timestamp: DateTime.utc_now()}}
     Quinn.find(response_body, :entry)
     |> Enum.map(fn(raw_entry) -> entry_struct(raw_entry) end)
     |> Enum.reduce(filings, fn(entry_struct, filings) ->
@@ -15,8 +17,18 @@ defmodule SecScraper.Parser do
 
 ################################ PRIVATE METHODS ###############################
 
+  # ?action=getcurrent&count=10&output=atom&owner=include by default
+  def build_query_string(opts \\ %{}) do
+    opts = Map.merge(@default_opts, opts)
+    Enum.map(opts, fn(key_pair) ->
+      {key, value} = key_pair
+      "#{key}=#{value}"
+    end)
+    |> Enum.join("&")
+    |> (fn(query_string) -> "?" <> query_string end).()
+  end
+
   defp entry_struct(entry) do
-    IO.inspect entry
     file_id = get_file_id(entry)
     {key, body} = get_title(entry)
     entry = %{
@@ -59,18 +71,17 @@ defmodule SecScraper.Parser do
 
   defp get_accession_number(accession_string) do
     regex = ~r/[a-z].+accession-number=(?<accession>[0-9-]+)/
-    accession = Regex.named_captures(regex, accession_string)["accession"]
-    String.to_atom(accession)
+    Regex.named_captures(regex, accession_string)["accession"]
   end
 
   defp parse_title(title_string) do
-    regex = ~r/(?<form>.+) - (?<subject>[\w .,&-\/]+) \((?<id>[0-9]+)\) \((?<role>.+)\)/
+    regex = ~r/(?<form>.+) - (?<subject>[\w .,&-\/]+) \((?<cik>[0-9]+)\) \((?<role>.+)\)/
     title = Regex.named_captures(regex, title_string)
     role_string = String.downcase(String.replace(title["role"], " ", "_"))
     key = String.to_atom(role_string)
     body = %{
       form: title["form"],
-      id: title["id"],
+      cik: title["cik"],
       subject: title["subject"]
     }
     {key, body}
