@@ -19,7 +19,7 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
       add :updated_at, :utc_datetime, default: fragment("now()")
     end
 
-    create index(:entity, :cik)
+    create unique_index(:entity, :cik)
     create index(:entity, :name)
     create index(:filing, :accession)
     create index(:filing, :issuer_cik)

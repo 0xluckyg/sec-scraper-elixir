@@ -13,7 +13,7 @@ defmodule Insider.Entity do
     timestamps type: :utc_datetime
   end
 
-  def changeset(entity, params // %{})
-    entity
+  def changeset(entity, params \\ %{}) do
+    # entity
   end
 end
