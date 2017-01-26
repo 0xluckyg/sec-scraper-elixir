@@ -5,7 +5,7 @@ defmodule SecScraper.Form4 do
   alias Insider.Entity
 
   def process_feed do
-    Feed.scrape
+    Feed.scrape(%{owner: :only})
     |> process_content()
     |> save_filings()
   end
@@ -13,7 +13,9 @@ defmodule SecScraper.Form4 do
   defp save_filings(db_objects) do
     {filing_list, entity_list} = db_objects
     filings  = Repo.insert_all(Filing, filing_list, returning: true)
-    entities = Repo.insert_all(Entity, entity_list, returning: true, on_conflict: :nothing)
+    entities = Repo.insert_all(Entity, entity_list, returning: true)
+    process_filing_data(filings)
+    {filings, entities}
   end
 
   defp process_content(feed) do
@@ -34,6 +36,10 @@ defmodule SecScraper.Form4 do
                           issuer_cik: issuer.cik, reporting_cik: reporting.cik}
 
     {filing, [issuer] ++ [reporting]}
+  end
+
+  def process_filing_data(filings) do
+    #TODO
   end
 
   defp process_entity(entity, role, timestamp) do
