@@ -11,6 +11,8 @@ defmodule SecScraper.Form4 do
   end
 
   defp save_filings(db_objects) do
+    require IEx
+    IEx.pry
     {filing_list, entity_list} = db_objects
     filings  = Repo.insert_all(Filing, filing_list, returning: true)
     entities = Repo.insert_all(Entity, entity_list, returning: true)
@@ -20,10 +22,10 @@ defmodule SecScraper.Form4 do
 
   defp process_content(feed) do
     {%{timestamp: timestamp}, entries} = Map.pop(feed, :metadata)
-    Enum.reduce(entries, {[], []}, fn(entry, db_objects) ->
+    Enum.reduce(entries, {MapSet.new, MapSet.new}, fn(entry, db_objects) ->
       {filing, entities} = process_entry(entry, timestamp)
-      {filing_list, entity_list} = db_objects
-      {filing_list ++ [filing], entity_list ++ entities}
+      {filing_set, entity_set} = db_objects
+      {MapSet.put(filing_set, filing), MapSet.union(entity_set, entities)}
     end)
   end
 
@@ -35,7 +37,7 @@ defmodule SecScraper.Form4 do
                           inserted_at: timestamp, updated_at: timestamp,
                           issuer_cik: issuer.cik, reporting_cik: reporting.cik}
 
-    {filing, [issuer] ++ [reporting]}
+    {filing, MapSet.new([issuer, reporting])}
   end
 
   def process_filing_data(filings) do
