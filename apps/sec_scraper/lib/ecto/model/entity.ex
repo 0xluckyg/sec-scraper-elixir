@@ -1,6 +1,5 @@
 defmodule Insider.Entity do
   alias Insider.Filing
-  alias SecScraper.Repo
   import Ecto.Changeset
   use Ecto.Schema
 
@@ -15,6 +14,6 @@ defmodule Insider.Entity do
 
   def changeset(entity, params \\ %{}) do
     entity
-    |> cast(params, [:cik, :role, :name])
+    |> cast(params, [:cik, :role, :name, :inserted_at, :updated_at])
   end
 end
