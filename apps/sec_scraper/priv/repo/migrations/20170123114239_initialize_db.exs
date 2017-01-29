@@ -21,7 +21,7 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
 
     create unique_index(:entity, :cik)
     create index(:entity, :name)
-    create index(:filing, :accession)
+    create unique_index(:filing, :accession)
     create index(:filing, :issuer_cik)
     create index(:filing, :reporting_cik)
   end

@@ -18,7 +18,7 @@ defmodule SecScraper.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :quinn, :postgrex, :ecto],
+    [extra_applications: [:logger, :httpoison, :quinn, :postgrex, :ecto],
      mod: {SecScraper, []}]
   end
 

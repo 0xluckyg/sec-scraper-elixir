@@ -1,7 +1,7 @@
 defmodule Insider.Entity do
   alias Insider.Filing
   alias SecScraper.Repo
-  import Ecto.Query
+  import Ecto.Changeset
   use Ecto.Schema
 
   @primary_key {:cik, :integer, autogenerate: false}
@@ -14,6 +14,7 @@ defmodule Insider.Entity do
   end
 
   def changeset(entity, params \\ %{}) do
-    # entity
+    entity
+    |> cast(params, [:cik, :role, :name])
   end
 end

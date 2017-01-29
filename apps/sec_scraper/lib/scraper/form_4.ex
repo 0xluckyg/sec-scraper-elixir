@@ -11,13 +11,17 @@ defmodule SecScraper.Form4 do
   end
 
   defp save_filings(db_objects) do
-    require IEx
-    IEx.pry
-    {filing_list, entity_list} = db_objects
-    filings  = Repo.insert_all(Filing, filing_list, returning: true)
-    entities = Repo.insert_all(Entity, entity_list, returning: true)
-    process_filing_data(filings)
-    {filings, entities}
+    {filing_set, entity_set} = db_objects
+    Repo.insert_all(Filing, MapSet.to_list(filing_set), returning: true)
+    MapSet.to_list(entity_set)
+    |> Enum.each(fn(entry) ->
+      require IEx
+      IEx.pry
+      entry
+      |> Entity.changeset
+      |> Repo.insert_or_update
+    end)
+    # process_filing_data(filings)
   end
 
   defp process_content(feed) do
@@ -39,13 +43,13 @@ defmodule SecScraper.Form4 do
 
     {filing, MapSet.new([issuer, reporting])}
   end
-
-  def process_filing_data(filings) do
-    #TODO
-  end
+  #
+  # def process_filing_data(filings) do
+  #   #TODO
+  # end
 
   defp process_entity(entity, role, timestamp) do
-    %{role: role, cik: String.to_integer(entity.cik), name: entity.subject,
-      inserted_at: timestamp, updated_at: timestamp}
+    struct(Entity, %{role: role, cik: String.to_integer(entity.cik), name: entity.subject,
+      inserted_at: timestamp, updated_at: timestamp})
   end
 end
