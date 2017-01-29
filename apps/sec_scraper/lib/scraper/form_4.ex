@@ -43,9 +43,9 @@ defmodule SecScraper.Form4 do
     {accession, body} = entry
     issuer            = process_entity(body.issuer,    "issuer",    timestamp)
     reporting         = process_entity(body.reporting, "reporting", timestamp)
-    filing            = struct(Filing, %{accession: accession, form: body.form,
+    filing            = Filing, %{accession: accession, form: body.form,
                           issuer_cik: issuer.cik, reporting_cik: reporting.cik,
-                          inserted_at: timestamp, updated_at: timestamp})
+                          inserted_at: timestamp, updated_at: timestamp}
 
     {filing, MapSet.new([issuer, reporting])}
   end
