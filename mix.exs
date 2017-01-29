@@ -5,7 +5,18 @@ defmodule SecFilings.Mixfile do
     [apps_path: "apps",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps(),
+     aliases: aliases()
+    ]
+  end
+
+
+  defp aliases do
+    [c: "compile",
+     restart: ["ecto.drop", "ecto.create", "ecto.migrate", "scrape"],
+     reset: ["ecto.drop", "ecto.create", "ecto.migrate"],
+     setup: ["ecto.create", "ecto.migrate"],
+   ]
   end
 
   # Dependencies can be Hex packages:

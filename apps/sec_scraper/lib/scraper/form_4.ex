@@ -5,23 +5,42 @@ defmodule SecScraper.Form4 do
   alias Insider.Entity
 
   def process_feed do
-    Feed.scrape
+    Feed.scrape(%{owner: :only})
     |> process_content()
     |> save_filings()
   end
 
   defp save_filings(db_objects) do
-    {filing_list, entity_list} = db_objects
-    filings  = Repo.insert_all(Filing, filing_list, returning: true)
-    entities = Repo.insert_all(Entity, entity_list, returning: true, on_conflict: :nothing)
+    {filings, entities} = db_objects
+    persist_filings_to_db(filings)
+    persist_entities_to_db(entities)
+    # process_filing_data(filings)
+  end
+
+  defp persist_filings_to_db (filing_mapset) do
+    MapSet.to_list(filing_mapset)
+    |> Enum.each(fn(filing) ->
+      filing
+      |> Filing.changeset
+      |> Repo.insert_or_update
+    end)
+  end
+
+  defp persist_entities_to_db (entity_mapset) do
+    MapSet.to_list(entity_mapset)
+    |> Enum.each(fn(entry) ->
+      entry
+      |> Entity.changeset
+      |> Repo.insert_or_update
+    end)
   end
 
   defp process_content(feed) do
     {%{timestamp: timestamp}, entries} = Map.pop(feed, :metadata)
-    Enum.reduce(entries, {[], []}, fn(entry, db_objects) ->
+    Enum.reduce(entries, {MapSet.new, MapSet.new}, fn(entry, db_objects) ->
       {filing, entities} = process_entry(entry, timestamp)
-      {filing_list, entity_list} = db_objects
-      {filing_list ++ [filing], entity_list ++ entities}
+      {filing_set, entity_set} = db_objects
+      {MapSet.put(filing_set, filing), MapSet.union(entity_set, entities)}
     end)
   end
 
@@ -29,15 +48,19 @@ defmodule SecScraper.Form4 do
     {accession, body} = entry
     issuer            = process_entity(body.issuer,    "issuer",    timestamp)
     reporting         = process_entity(body.reporting, "reporting", timestamp)
-    filing            = %{accession: accession, form: body.form,
-                          inserted_at: timestamp, updated_at: timestamp,
-                          issuer_cik: issuer.cik, reporting_cik: reporting.cik}
+    filing            = struct(Filing, %{accession: accession, form: body.form,
+                          issuer_cik: issuer.cik, reporting_cik: reporting.cik,
+                          inserted_at: timestamp, updated_at: timestamp})
 
-    {filing, [issuer] ++ [reporting]}
+    {filing, MapSet.new([issuer, reporting])}
   end
+  #
+  # def process_filing_data(filings) do
+  #   #TODO
+  # end
 
   defp process_entity(entity, role, timestamp) do
-    %{role: role, cik: String.to_integer(entity.cik), name: entity.subject,
-      inserted_at: timestamp, updated_at: timestamp}
+    struct(Entity, %{role: role, cik: String.to_integer(entity.cik), name: entity.subject,
+      inserted_at: timestamp, updated_at: timestamp})
   end
 end
