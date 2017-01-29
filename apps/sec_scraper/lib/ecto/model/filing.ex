@@ -13,6 +13,6 @@ defmodule Insider.Filing do
 
   def changeset(filing, params \\ %{}) do
     filing
-    |> cast(params, [:accession, :form, :name, :inserted_at, :updated_at])
+    |> cast(params, [:accession, :form, :issuer_cik, :reporting_cik, :inserted_at, :updated_at])
   end
 end

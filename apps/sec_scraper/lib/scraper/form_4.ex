@@ -11,18 +11,15 @@ defmodule SecScraper.Form4 do
   end
 
   defp save_filings(db_objects) do
-    require IEx
     {filing_set, entity_set} = db_objects
-    # MapSet.to_list(filing_set)
-    # |> Enum.each(fn(filing) ->
-    #   filing
-    #   |> Filing.changeset
-    #   |> Repo.insert_or_update
-    # end)
-    Repo.insert_all(Filing, MapSet.to_list(filing_set), returning: true, on_conflict: :nothing)
+    MapSet.to_list(filing_set)
+    |> Enum.each(fn(filing) ->
+      filing
+      |> Filing.changeset
+      |> Repo.insert_or_update
+    end)
     MapSet.to_list(entity_set)
     |> Enum.each(fn(entry) ->
-      IEx.pry
       entry
       |> Entity.changeset
       |> Repo.insert_or_update
@@ -43,9 +40,9 @@ defmodule SecScraper.Form4 do
     {accession, body} = entry
     issuer            = process_entity(body.issuer,    "issuer",    timestamp)
     reporting         = process_entity(body.reporting, "reporting", timestamp)
-    filing            = Filing, %{accession: accession, form: body.form,
+    filing            = struct(Filing, %{accession: accession, form: body.form,
                           issuer_cik: issuer.cik, reporting_cik: reporting.cik,
-                          inserted_at: timestamp, updated_at: timestamp}
+                          inserted_at: timestamp, updated_at: timestamp})
 
     {filing, MapSet.new([issuer, reporting])}
   end
