@@ -15,5 +15,6 @@ defmodule Insider.Entity do
   def changeset(entity, params \\ %{}) do
     entity
     |> cast(params, [:cik, :role, :name, :inserted_at, :updated_at])
+    |> unique_constraint(:cik)
   end
 end

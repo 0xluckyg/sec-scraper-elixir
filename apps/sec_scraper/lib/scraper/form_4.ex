@@ -11,20 +11,28 @@ defmodule SecScraper.Form4 do
   end
 
   defp save_filings(db_objects) do
-    {filing_set, entity_set} = db_objects
-    MapSet.to_list(filing_set)
+    {filings, entities} = db_objects
+    persist_filings_to_db(filings)
+    persist_entities_to_db(entities)
+    # process_filing_data(filings)
+  end
+
+  defp persist_filings_to_db (filing_mapset) do
+    MapSet.to_list(filing_mapset)
     |> Enum.each(fn(filing) ->
       filing
       |> Filing.changeset
       |> Repo.insert_or_update
     end)
-    MapSet.to_list(entity_set)
+  end
+
+  defp persist_entities_to_db (entity_mapset) do
+    MapSet.to_list(entity_mapset)
     |> Enum.each(fn(entry) ->
       entry
       |> Entity.changeset
       |> Repo.insert_or_update
     end)
-    # process_filing_data(filings)
   end
 
   defp process_content(feed) do
