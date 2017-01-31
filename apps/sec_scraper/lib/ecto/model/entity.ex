@@ -12,6 +12,10 @@ defmodule Insider.Entity do
     timestamps type: :utc_datetime
   end
 
+  def all do
+    "entity"
+  end
+
   def changeset(entity, params \\ %{}) do
     entity
     |> cast(params, [:cik, :role, :name, :inserted_at, :updated_at])

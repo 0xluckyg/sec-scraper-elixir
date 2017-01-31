@@ -12,10 +12,11 @@ defmodule SecFilings.Mixfile do
 
 
   defp aliases do
-    [c: "compile",
+    [
      restart: ["ecto.drop", "ecto.create", "ecto.migrate", "scrape"],
      reset: ["ecto.drop", "ecto.create", "ecto.migrate"],
      setup: ["ecto.create", "ecto.migrate"],
+     c: "compile",
    ]
   end
 

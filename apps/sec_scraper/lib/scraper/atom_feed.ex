@@ -1,7 +1,7 @@
 defmodule SecScraper.AtomFeed do
 
   @base_url "https://www.sec.gov/cgi-bin/browse-edgar"
-  @default_opts %{ owner: :include, count: 10, action: :getcurrent, output: :atom }
+  @default_opts %{ owner: :include, count: 100, action: :getcurrent, output: :atom }
 
   def scrape(opts \\ %{}) do
     url = @base_url <> build_query_string(opts)

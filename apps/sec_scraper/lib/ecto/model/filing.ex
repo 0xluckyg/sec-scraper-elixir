@@ -1,4 +1,4 @@
-defmodule Insider.Filing do
+defmodule SecScraper.Filing do
   alias Insider.Entity
   import Ecto.Changeset
   use Ecto.Schema
@@ -6,6 +6,7 @@ defmodule Insider.Filing do
   schema "filing" do
     field :accession
     field :form
+    field :link
     timestamps type: :utc_datetime
     belongs_to :issuer,    Entity, foreign_key: :issuer_cik,    references: :cik
     belongs_to :reporting, Entity, foreign_key: :reporting_cik, references: :cik
@@ -13,7 +14,7 @@ defmodule Insider.Filing do
 
   def changeset(filing, params \\ %{}) do
     filing
-    |> cast(params, [:accession, :form, :issuer_cik, :reporting_cik, :inserted_at, :updated_at])
+    |> cast(params, [:accession, :form, :link, :issuer_cik, :reporting_cik, :inserted_at, :updated_at])
     |> unique_constraint(:accession)
   end
 end

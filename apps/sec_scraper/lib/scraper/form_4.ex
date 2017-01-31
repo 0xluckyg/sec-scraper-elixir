@@ -10,6 +10,8 @@ defmodule SecScraper.Form4 do
     |> save_filings()
   end
 
+################################ PRIVATE METHODS ###############################
+
   defp save_filings(db_objects) do
     {filings, entities} = db_objects
     persist_filings_to_db(filings)
@@ -46,18 +48,17 @@ defmodule SecScraper.Form4 do
 
   defp process_entry(entry, timestamp) do
     {accession, body} = entry
+    require IEx
+    IEx.pry
     issuer            = process_entity(body.issuer,    "issuer",    timestamp)
     reporting         = process_entity(body.reporting, "reporting", timestamp)
-    filing            = struct(Filing, %{accession: accession, form: body.form,
-                          issuer_cik: issuer.cik, reporting_cik: reporting.cik,
-                          inserted_at: timestamp, updated_at: timestamp})
+    filing            = struct(Filing,
+                          %{accession: accession, form: body.form, link: body.link,
+                            issuer_cik: issuer.cik, reporting_cik: reporting.cik,
+                            inserted_at: timestamp, updated_at: timestamp})
 
     {filing, MapSet.new([issuer, reporting])}
   end
-  #
-  # def process_filing_data(filings) do
-  #   #TODO
-  # end
 
   defp process_entity(entity, role, timestamp) do
     struct(Entity, %{role: role, cik: String.to_integer(entity.cik), name: entity.subject,
