@@ -58,8 +58,6 @@ defmodule SecScraper.Form4 do
   end
 
   def save_filings(db_objects) do
-    require IEx
-    IEx.pry
     {filings, companies, insiders} = db_objects
     persist(filings: filings)
     persist(insiders: insiders)
