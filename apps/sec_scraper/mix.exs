@@ -8,7 +8,7 @@ defmodule SecScraper.Mixfile do
      deps_path: "../../deps",
      lockfile: "../../mix.lock",
      version: "0.1.0",
-     elixir: "~> 1.3",
+     elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps()]
@@ -18,7 +18,7 @@ defmodule SecScraper.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :quinn, :postgrex, :ecto],
+    [extra_applications: [:logger, :httpoison, :quinn, :postgrex, :ecto],
      mod: {SecScraper, []}]
   end
 
@@ -36,7 +36,8 @@ defmodule SecScraper.Mixfile do
       { :httpoison, "~> 0.11.0" },
       { :quinn, "~> 1.0.0" },
       { :postgrex, "~> 0.13.0" },
-      { :ecto, "~> 2.1.3" }
+      { :ecto, "~> 2.1.3" },
+      { :floki, "~> 0.13.1" },
     ]
   end
 end
