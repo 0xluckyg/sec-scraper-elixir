@@ -1,8 +1,9 @@
 defmodule SecScraper.Form4 do
   alias SecScraper.AtomFeed, as: Feed
   alias SecScraper.Repo
-  alias Insider.Filing
-  alias Insider.Entity
+  alias SecScraper.Filing
+  alias SecScraper.Insider
+  alias SecScraper.Company
 
   def process_feed do
     Feed.scrape(%{owner: :only})
@@ -48,20 +49,24 @@ defmodule SecScraper.Form4 do
 
   defp process_entry(entry, timestamp) do
     {accession, body} = entry
-    require IEx
-    IEx.pry
-    issuer            = process_entity(body.issuer,    "issuer",    timestamp)
-    reporting         = process_entity(body.reporting, "reporting", timestamp)
-    filing            = struct(Filing,
-                          %{accession: accession, form: body.form, link: body.link,
-                            issuer_cik: issuer.cik, reporting_cik: reporting.cik,
-                            inserted_at: timestamp, updated_at: timestamp})
-
-    {filing, MapSet.new([issuer, reporting])}
+    issuer            = process_entity(Issuer, body.issuer,    "issuer",    timestamp)
+    reporting         = process_entity(Reporting, body.reporting, "reporting", timestamp)
+    filing            = process_filing()
+    {filing, issuer, reporting}
   end
 
-  defp process_entity(entity, role, timestamp) do
-    struct(Entity, %{role: role, cik: String.to_integer(entity.cik), name: entity.subject,
-      inserted_at: timestamp, updated_at: timestamp})
+  defp process_entity(schema, entity, role, timestamp) do
+    struct(schema, %{
+      role: role, cik: String.to_integer(entity.cik), name: entity.subject,
+      inserted_at: timestamp, updated_at: timestamp
+    })
+  end
+
+  defp process_filing(opts)
+    struct(Filing, %{
+      accession: accession, form: body.form, link: body.link,
+      issuer_cik: issuer.cik, reporting_cik: reporting.cik,
+      inserted_at: timestamp, updated_at: timestamp
+    })
   end
 end

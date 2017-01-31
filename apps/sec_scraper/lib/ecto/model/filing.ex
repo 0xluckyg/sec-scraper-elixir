@@ -1,5 +1,5 @@
 defmodule SecScraper.Filing do
-  alias Insider.Entity
+  alias SecScraper.Insider
   import Ecto.Changeset
   use Ecto.Schema
 
@@ -8,8 +8,8 @@ defmodule SecScraper.Filing do
     field :form
     field :link
     timestamps type: :utc_datetime
-    belongs_to :issuer,    Entity, foreign_key: :issuer_cik,    references: :cik
-    belongs_to :reporting, Entity, foreign_key: :reporting_cik, references: :cik
+    belongs_to :issuer,    Company, foreign_key: :issuer_cik,    references: :cik
+    belongs_to :reporting, Insider, foreign_key: :reporting_cik, references: :cik
   end
 
   def changeset(filing, params \\ %{}) do
