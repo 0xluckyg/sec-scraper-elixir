@@ -13,15 +13,61 @@ defmodule SecScraper.Form4 do
 
 ################################ PRIVATE METHODS ###############################
 
-  defp save_filings(db_objects) do
-    {filings, entities} = db_objects
-    persist_filings_to_db(filings)
-    persist_entities_to_db(entities)
-    # process_filing_data(filings)
+  def process_content(feed) do
+    {%{timestamp: timestamp}, entries} = Map.pop(feed, :metadata)
+    Enum.reduce(entries, {MapSet.new, MapSet.new, MapSet.new}, fn(entry, db_objects) ->
+      {filing, company, insider} = process_entry(entry, timestamp)
+      {filing_set, company_set, insider_set} = db_objects
+      {MapSet.put(filing_set,  filing),
+       MapSet.put(company_set, company),
+       MapSet.put(insider_set, insider)}
+    end)
   end
 
-  defp persist_filings_to_db (filing_mapset) do
-    MapSet.to_list(filing_mapset)
+  def process_entry(entry, timestamp) do
+    {accession, body} = entry
+    company = process(company: body.issuer, timestamp: timestamp)
+    insider = process(insider: body.reporting, timestamp: timestamp)
+    filing  = process(filing: %{
+      accession: accession, body: body, timestamp: timestamp,
+      company_cik: company.cik, insider_cik: insider.cik
+    })
+    {filing, company, insider}
+  end
+
+  def process(company: company, timestamp: timestamp) do
+    struct(Company, %{
+      cik: String.to_integer(company.cik), name: company.subject,
+      inserted_at: timestamp, updated_at: timestamp
+    })
+  end
+
+  def process(insider: insider, timestamp: timestamp) do
+    struct(Insider, %{
+      cik: String.to_integer(insider.cik), name: insider.subject,
+      inserted_at: timestamp, updated_at: timestamp
+    })
+  end
+
+  def process(filing: opts) do
+    struct(Filing, %{
+      accession: opts[:accession], form: opts[:body].form, link: opts[:body].link,
+      company_cik: opts[:company_cik], insider_cik: opts[:insider_cik],
+      inserted_at: opts[:timestamp], updated_at: opts[:timestamp]
+    })
+  end
+
+  def save_filings(db_objects) do
+    require IEx
+    IEx.pry
+    {filings, companies, insiders} = db_objects
+    persist(filings: filings)
+    persist(insiders: insiders)
+    persist(companies: companies)
+  end
+
+  def persist(filings: filings) do
+    MapSet.to_list(filings)
     |> Enum.each(fn(filing) ->
       filing
       |> Filing.changeset
@@ -29,44 +75,21 @@ defmodule SecScraper.Form4 do
     end)
   end
 
-  defp persist_entities_to_db (entity_mapset) do
-    MapSet.to_list(entity_mapset)
-    |> Enum.each(fn(entry) ->
-      entry
-      |> Entity.changeset
+  def persist(companies: companies) do
+    MapSet.to_list(companies)
+    |> Enum.each(fn(company) ->
+      company
+      |> Company.changeset
       |> Repo.insert_or_update
     end)
   end
 
-  defp process_content(feed) do
-    {%{timestamp: timestamp}, entries} = Map.pop(feed, :metadata)
-    Enum.reduce(entries, {MapSet.new, MapSet.new}, fn(entry, db_objects) ->
-      {filing, entities} = process_entry(entry, timestamp)
-      {filing_set, entity_set} = db_objects
-      {MapSet.put(filing_set, filing), MapSet.union(entity_set, entities)}
+  def persist(insiders: insiders) do
+    MapSet.to_list(insiders)
+    |> Enum.each(fn(insider) ->
+      insider
+      |> Insider.changeset
+      |> Repo.insert_or_update
     end)
-  end
-
-  defp process_entry(entry, timestamp) do
-    {accession, body} = entry
-    issuer            = process_entity(Issuer, body.issuer,    "issuer",    timestamp)
-    reporting         = process_entity(Reporting, body.reporting, "reporting", timestamp)
-    filing            = process_filing()
-    {filing, issuer, reporting}
-  end
-
-  defp process_entity(schema, entity, role, timestamp) do
-    struct(schema, %{
-      role: role, cik: String.to_integer(entity.cik), name: entity.subject,
-      inserted_at: timestamp, updated_at: timestamp
-    })
-  end
-
-  defp process_filing(opts)
-    struct(Filing, %{
-      accession: accession, form: body.form, link: body.link,
-      issuer_cik: issuer.cik, reporting_cik: reporting.cik,
-      inserted_at: timestamp, updated_at: timestamp
-    })
   end
 end

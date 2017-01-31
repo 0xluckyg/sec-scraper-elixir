@@ -8,7 +8,7 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
       add :inserted_at, :utc_datetime, default: fragment("now()")
       add :updated_at, :utc_datetime, default: fragment("now()")
     end
-    
+
     create index(:insider, :name)
     create unique_index(:insider, :cik)
 
@@ -27,14 +27,14 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
       add :accession, :string, null: false, unique: true
       add :form, :string, null: false
       add :link, :string, null: false
-      add :issuer_cik, :integer
-      add :reporting_cik, :integer
+      add :company_cik, :integer
+      add :insider_cik, :integer
       add :inserted_at, :utc_datetime, default: fragment("now()")
       add :updated_at, :utc_datetime, default: fragment("now()")
     end
 
-    create index(:filing, :issuer_cik)
-    create index(:filing, :reporting_cik)
+    create index(:filing, :company_cik)
+    create index(:filing, :insider_cik)
     create unique_index(:filing, :link)
     create unique_index(:filing, :accession)
   end
