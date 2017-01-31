@@ -36,7 +36,8 @@ defmodule SecScraper.Mixfile do
       { :httpoison, "~> 0.11.0" },
       { :quinn, "~> 1.0.0" },
       { :postgrex, "~> 0.13.0" },
-      { :ecto, "~> 2.1.3" }
+      { :ecto, "~> 2.1.3" },
+      { :floki, "~> 0.13.1" },
     ]
   end
 end

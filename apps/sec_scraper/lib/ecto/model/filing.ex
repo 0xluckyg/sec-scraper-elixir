@@ -17,4 +17,6 @@ defmodule SecScraper.Filing do
     |> cast(params, [:accession, :form, :link, :company_cik, :insider_cik, :inserted_at, :updated_at])
     |> unique_constraint(:accession)
   end
+
+  #SecScraper.Repo.all(SecScraper.Company) |> SecScraper.Repo.preload([:filings])
 end
