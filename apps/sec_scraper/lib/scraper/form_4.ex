@@ -50,8 +50,10 @@ defmodule SecScraper.Form4 do
   end
 
   def process(filing: opts) do
+    require IEx
+    IEx.pry
     struct(Filing, %{
-      accession: opts[:accession], form: opts[:body].form, link: opts[:body].link,
+      accession: opts[:accession], form: opts[:body].form, ref: opts[:body].ref,
       company_cik: opts[:company_cik], insider_cik: opts[:insider_cik],
       inserted_at: opts[:timestamp], updated_at: opts[:timestamp]
     })
@@ -90,4 +92,39 @@ defmodule SecScraper.Form4 do
       |> Repo.insert_or_update
     end)
   end
+
+  def go(url) do
+    HTTPoison.get!(url).body
+    |> Floki.find("table.tableFile")
+    |> Floki.find("a")
+    |> get_links()
+    |> Enum.map(fn({key, node}) ->
+      {_tag, [{_href, link}], [_children]} = node
+      {key, link}
+    end)
+    # |> save_all()
+  end
+
+  def save_all(list) do
+    save(html: list[:html])
+    save(xml: list[:xml])
+    save(txt: list[:txt])
+  end
+
+  def get_links([html, xml, next | tail]) do
+    [html: html, xml: xml, txt: get_txt(tail, next)]
+  end
+
+  def get_txt([], last),  do: last
+  def get_txt([next | tail], _cur) do
+    get_txt(tail, next)
+  end
+
+  def save(html: html), do: html
+  def save(xml: xml), do: xml
+  def save(txt: txt), do: txt
+
+  # def process_node(html_node) do
+  #   {tag_name, attributes, children_nodes} = html_node
+  # end
 end

@@ -26,7 +26,10 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
     create table(:filing) do
       add :accession, :string, null: false, unique: true
       add :form, :string, null: false
-      add :link, :string, null: false
+      add :ref, :string, null: false
+      add :html, :string, null: false
+      add :xml, :string, null: false
+      add :txt, :string, null: false
       add :company_cik, :integer
       add :insider_cik, :integer
       add :inserted_at, :utc_datetime, default: fragment("now()")
@@ -35,7 +38,6 @@ defmodule SecScraper.Repo.Migrations.InitializeDb do
 
     create index(:filing, :company_cik)
     create index(:filing, :insider_cik)
-    create unique_index(:filing, :link)
     create unique_index(:filing, :accession)
   end
 

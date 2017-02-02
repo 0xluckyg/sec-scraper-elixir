@@ -34,7 +34,7 @@ defmodule SecScraper.AtomFeed do
     entry = %{
       key => body,
       form: get_form(entry),
-      link: get_link(entry)
+      ref: get_link(entry)
     }
     {file_id, entry}
   end
